@@ -44,6 +44,7 @@ Este proyecto implementa un **sistema completo de machine learning** para la det
 ✅ **3 Clasificadores Probabilísticos**: Linear, Logistic, GMM - todos con validación train/test  
 ✅ **Severidad Multinivel**: Evaluación por sensor con umbrales configurables  
 ✅ **Interfaz Web Interactiva**: Streamlit con 3 tabs (Predicción, Gráficas, Severidad)  
+✅ **Modelo 3D Interactivo**: Turbina Francis 3D (Plotly) + 2 gráficos de análisis 3D + modo demo sin CSV/modelo — ver `docs/3D_MODEL.md`  
 ✅ **Tracking de Experimentos**: MLflow para reproducibilidad  
 ✅ **Dockerizado**: docker-compose con MLflow integrado  
 ✅ **Deployed**: Streamlit Cloud en producción  
@@ -414,6 +415,22 @@ streamlit run app/main.py
 1. Cargar archivo CSV desde sidebar
 2. Esperar procesamiento
 3. Ver análisis en los tabs
+
+**Nuevos tabs 3D (Plotly) + modo demo:**
+4. **Tab 4 — 🌀 Tuabin 3D**: modelo 3D de turbina Francis horizontal
+   (eje, 3 cojinetes, generador, cámara espiral, rodete de 13 álabes,
+   tubo de aspiración) con sensores coloreados por severidad
+   (🟢 verde / 🟡 amarillo / 🔴 rojo). Rotar con el ratón, zoom con la rueda.
+5. **Tab 5 — 📦 Phân tích 3D**: scatter 3D KPH × sensor × amplitud
+   (color = |residuo|) + espacio 3D de sensores.
+6. Sin CSV/modelo: activar **"Dùng dữ liệu demo"** en el sidebar
+   para ver el 3D con datos sintéticos. Detalles en `docs/3D_MODEL.md`.
+
+**Exportar HTML 3D standalone (sin Streamlit):**
+```bash
+python -m workflows.visualize_3d            # → models/predictions/3d_*.html
+python -m workflows.visualize_3d --anomaly misalignment --open
+```
 
 ---
 
