@@ -363,8 +363,8 @@ def create_turbine_figure(
         scolor.append(color); ssize.append(size)
         stext.append(
             f"<b>{s}</b><br>{desc}<br>"
-            f"Severidad: <b>{SEVERITY_VI.get(sev, sev)}</b><br>"
-            f"Max: {vmax:.2f} µm<br>Residual TB: {mres:.4f}"
+            f"Mức độ: <b>{SEVERITY_VI.get(sev, sev)}</b><br>"
+            f"Max: {vmax:.2f} µm<br>Sai số TB: {mres:.4f}"
         )
         if sev in ("amarillo", "rojo"):
             hx.append(x); hy.append(y); hz.append(z)
@@ -465,10 +465,10 @@ def create_vibration_3d_scatter(
             mode="markers", name=f"{s} (đo)",
             marker=dict(size=3.2, color=aa, colorscale="RdYlGn_r",
                         cmin=0, cmax=cmax, opacity=0.75,
-                        colorbar=dict(title="|residual|") if yi == 0 else None,
+                        colorbar=dict(title="|sai số|") if yi == 0 else None,
                         showscale=(yi == 0)),
             hovertemplate=(f"<b>{s}</b><br>KPH=%{{x:.1f}}<br>"
-                           "Biên độ=%{z:.2f} µm<br>|res|=%{marker.color:.3f}<extra></extra>"),
+                           "Biên độ=%{z:.2f} µm<br>|sai số|=%{marker.color:.3f}<extra></extra>"),
         ))
         # đường đa thức (sắp xếp theo KPH cho mượt)
         order = np.argsort(kph[:n])
@@ -539,7 +539,7 @@ def create_sensor_space_3d(
             x=arr(a, "original")[:n][idx], y=arr(b, "original")[:n][idx],
             z=arr(c, "original")[:n][idx], mode="markers", name="mẫu đo",
             marker=dict(size=3.2, color=mean_res, colorscale="RdYlGn_r",
-                        opacity=0.75, colorbar=dict(title="res TB")),
+                        opacity=0.75, colorbar=dict(title="sai số TB")),
             hovertemplate=(f"<b>mẫu</b><br>{a}=%{{x:.2f}}<br>{b}=%{{y:.2f}}<br>"
                            f"{c}=%{{z:.2f}}<extra></extra>"),
             customdata=kk,
@@ -553,7 +553,7 @@ def create_sensor_space_3d(
             x=arr(a, "original")[:n][idx], y=arr(b, "original")[:n][idx],
             z=kk, mode="markers", name="mẫu đo",
             marker=dict(size=3.2, color=mean_res, colorscale="RdYlGn_r",
-                        opacity=0.75, colorbar=dict(title="res TB")),
+                        opacity=0.75, colorbar=dict(title="sai số TB")),
             hovertemplate=(f"<b>mẫu</b><br>{a}=%{{x:.2f}}<br>{b}=%{{y:.2f}}<br>"
                            "KPH=%{z:.1f}<extra></extra>")))
         fig.update_layout(scene=dict(
@@ -566,7 +566,7 @@ def create_sensor_space_3d(
             x=kk, y=arr(a, "original")[:n][idx], z=res,
             mode="markers", name="mẫu đo",
             marker=dict(size=3.2, color=np.abs(res), colorscale="RdYlGn_r",
-                        opacity=0.8, colorbar=dict(title="|res|")),
+                        opacity=0.8, colorbar=dict(title="|sai số|")),
             hovertemplate=("<b>mẫu</b><br>KPH=%{x:.1f}<br>Biên độ=%{y:.2f}"
                            "<br>res=%{z:.3f}<extra></extra>")))
         fig.update_layout(scene=dict(

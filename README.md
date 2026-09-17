@@ -1,83 +1,84 @@
-# ⚡ Detector de Anomalías en Turbinas Hidráulicas
+# ⚡ Phát hiện bất thường tuabin thủy điện
 
-**Sistema de ML para detección y clasificación de anomalías (desbalanceo vs desalineación) en turbinas hidráulicas Francis usando análisis de residuos y clasificadores probabilísticos.**
-
----
-
-## 📋 Tabla de Contenidos
-
-- [Descripción General](#descripción-general)
-- [Características](#características)
-- [Arquitectura](#arquitectura)
-- [Estructura del Proyecto](#estructura-del-proyecto)
-- [Requisitos](#requisitos)
-- [Instalación](#instalación)
-- [Uso](#uso)
-  - [Entrenar el Modelo](#entrenar-el-modelo)
-  - [Entrenar Clasificadores](#entrenar-clasificadores)
-  - [Hacer Predicciones](#hacer-predicciones)
-  - [Ejecutar la Interfaz Web](#ejecutar-la-interfaz-web)
-- [API REST (Legado)](#api-rest-legado)
-- [Workflows de CI/CD](#workflows-de-cicd)
-- [Deployment](#deployment)
-- [Documentación Técnica](#documentación-técnica)
+**Hệ thống ML phát hiện và phân loại bất thường (mất cân bằng vs lệch trục) ở tuabin thủy điện Francis bằng phân tích sai số (residual) và các bộ phân loại xác suất.**
 
 ---
 
-## 🎯 Descripción General
+## 📋 Mục lục
 
-Este proyecto implementa un **sistema completo de machine learning** para la detección de anomalías en turbinas hidráulicas. El sistema:
-
-1. **Procesa datos de sensores** de vibración (CSP, CSL, CTP, CTL) en diferentes velocidades (KPH)
-2. **Entrena un modelo de residuos** usando polinomios cúbicos para capturar la vibración base
-3. **Entrena clasificadores probabilísticos** (Linear, Logistic, GMM) para diferenciar:
-   - **Desbalanceo**: Desequilibrio de masa rotacional
-   - **Desalineación**: Desalineación del eje
-4. **Calcula severidad** en tres niveles (Verde, Amarillo, Rojo) por sensor
-5. **Proporciona visualización interactiva** mediante Streamlit
-
----
-
-## ✨ Características
-
-✅ **Modelo de Residuos Robusto**: Ajuste polinómico por sensor para capturar patrones base  
-✅ **3 Clasificadores Probabilísticos**: Linear, Logistic, GMM - todos con validación train/test  
-✅ **Severidad Multinivel**: Evaluación por sensor con umbrales configurables  
-✅ **Interfaz Web Interactiva**: Streamlit con 3 tabs (Predicción, Gráficas, Severidad)  
-✅ **Modelo 3D Interactivo**: Turbina Francis 3D (Plotly) + 2 gráficos de análisis 3D + modo demo sin CSV/modelo — ver `docs/3D_MODEL.md`  
-✅ **Tracking de Experimentos**: MLflow para reproducibilidad  
-✅ **Dockerizado**: docker-compose con MLflow integrado  
-✅ **Deployed**: Streamlit Cloud en producción  
+- [Tổng quan](#tổng-quan)
+- [Tính năng](#tính-năng)
+- [Kiến trúc](#kiến-trúc)
+- [Cấu trúc dự án](#cấu-trúc-dự-án)
+- [Yêu cầu](#yêu-cầu)
+- [Cài đặt](#cài-đặt)
+- [Sử dụng](#sử-dụng)
+  - [Huấn luyện mô hình](#huấn-luyện-mô-hình)
+  - [Huấn luyện bộ phân loại](#huấn-luyện-bộ-phân-loại)
+  - [Dự đoán](#dự-đoán)
+  - [Chạy giao diện web](#chạy-giao-diện-web)
+  - [Mô hình 3D](#mô-hình-3d)
+- [API REST (cũ)](#api-rest-cũ)
+- [Quy trình CI/CD](#quy-trình-cicd)
+- [Triển khai](#triển-khai)
+- [Tài liệu kỹ thuật](#tài-liệu-kỹ-thuật)
 
 ---
 
-## 🏗️ Arquitectura
+## 🎯 Tổng quan
+
+Dự án triển khai một **hệ thống machine learning hoàn chỉnh** để phát hiện bất thường ở tuabin thủy điện. Hệ thống:
+
+1. **Xử lý dữ liệu cảm biến** rung động (CSP, CSL, CTP, CTL) ở các tốc độ khác nhau (KPH)
+2. **Huấn luyện mô hình sai số** dùng đa thức bậc 3 để nắm bắt độ rung nền
+3. **Huấn luyện các bộ phân loại xác suất** (Linear, Logistic, GMM) để phân biệt:
+   - **Mất cân bằng (Desbalanceo)**: mất cân bằng khối lượng quay
+   - **Lệch trục (Desalineación)**: lệch trục quay
+4. **Tính mức độ** theo 3 cấp (Xanh, Vàng, Đỏ) cho từng cảm biến
+5. **Trực quan hóa tương tác** qua Streamlit (bao gồm mô hình 3D)
+
+---
+
+## ✨ Tính năng
+
+✅ **Mô hình sai số mạnh mẽ**: khớp đa thức theo từng cảm biến để nắm mẫu nền  
+✅ **3 bộ phân loại xác suất**: Linear, Logistic, GMM — đều có kiểm chứng train/test  
+✅ **Mức độ nhiều cấp**: đánh giá theo từng cảm biến với ngưỡng tùy chỉnh  
+✅ **Giao diện web tương tác**: Streamlit với 5 tab (Dự đoán, Đồ thị, Mức độ, Tuabin 3D, Phân tích 3D)  
+✅ **Mô hình 3D tương tác**: tuabin Francis 3D (Plotly) + 2 đồ thị phân tích 3D + chế độ demo không cần CSV/model — xem `docs/3D_MODEL.md`  
+✅ **Theo dõi thí nghiệm**: MLflow để tái lập kết quả  
+✅ **Đã docker hóa**: docker-compose tích hợp MLflow  
+✅ **Đã triển khai**: Streamlit Cloud bản production  
+
+---
+
+## 🏗️ Kiến trúc
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Datos CSV (Sensores)                     │
+│                    Dữ liệu CSV (cảm biến)                   │
 └────────────────────────┬────────────────────────────────────┘
                          │
          ┌───────────────┴───────────────┐
          │                               │
     ┌────▼─────┐              ┌──────────▼────┐
-    │ EDA       │              │ Preprocessing │
+    │ EDA       │              │ Tiền xử lý    │
     │ (eda.py)  │              │ (pipeline.py) │
     └────┬─────┘              └──────────┬────┘
          │                               │
          └───────────────┬───────────────┘
                          │
          ┌───────────────▼───────────────┐
-         │  Modelo de Residuos (train)   │
-         │  - Polinomios cúbicos         │
-         │  - Por sensor                 │
+         │  Mô hình sai số (huấn luyện)  │
+         │  - Đa thức bậc 3              │
+         │  - Theo từng cảm biến         │
          │  - residuals_CSP_v3.pkl       │
          └───────────────┬───────────────┘
                          │
          ┌───────────────▼───────────────┐
-         │  Extracción de Features       │
-         │  - 12 features estadísticos   │
-         │  - Por archivo entrenamiento  │
+         │  Trích xuất đặc trưng         │
+         │  - 12 đặc trưng thống kê      │
+         │  - Theo từng file huấn luyện  │
          └───────────────┬───────────────┘
                          │
     ┌────────────────────┼────────────────────┐
@@ -89,102 +90,110 @@ Este proyecto implementa un **sistema completo de machine learning** para la det
     └────────────────────┼────────────────────┘
                          │
          ┌───────────────▼───────────────┐
-         │  Predicción en Datos Nuevos   │
-         │  - Residuos por muestra       │
-         │  - Probabilidades             │
-         │  - Severidad por sensor       │
+         │  Dự đoán trên dữ liệu mới     │
+         │  - Sai số từng mẫu            │
+         │  - Xác suất                   │
+         │  - Mức độ từng cảm biến       │
          └───────────────┬───────────────┘
                          │
          ┌───────────────▼───────────────┐
-         │  Streamlit UI                 │
-         │  ├─ Tab 1: Predicción Global  │
-         │  ├─ Tab 2: Gráficas Sensores  │
-         │  └─ Tab 3: Severidad Detalle  │
+         │  Giao diện Streamlit          │
+         │  ├─ Tab 1: Dự đoán tổng thể   │
+         │  ├─ Tab 2: Đồ thị cảm biến    │
+         │  ├─ Tab 3: Mức độ chi tiết    │
+         │  ├─ Tab 4: Tuabin 3D          │
+         │  └─ Tab 5: Phân tích 3D       │
          └───────────────────────────────┘
 ```
 
 ---
 
-## 📁 Estructura del Proyecto
+## 📁 Cấu trúc dự án
 
 ```
 hydro-turb-ai-anomaly/
 │
 ├── 📂 src/
 │   ├── 📂 models/
-│   │   ├── anomaly_detector.py          # Clase principal de detección
-│   │   ├── classifier.py                # Clasificadores (Linear/Logistic/GMM)
-│   │   ├── residuals_model.py           # Modelo de residuos base
-│   │   ├── sensor_selector.py           # Selección de sensores
-│   │   ├── turb_predictor.py            # Predictor integrado
-│   │   └── vibration_severity_checker.py # Evaluación de severidad
+│   │   ├── anomaly_detector.py          # Lớp phát hiện chính
+│   │   ├── classifier.py                # Bộ phân loại (Linear/Logistic/GMM)
+│   │   ├── residuals_model.py           # Mô hình sai số nền
+│   │   ├── sensor_selector.py           # Chọn cảm biến
+│   │   ├── turb_predictor.py            # Bộ dự đoán tích hợp
+│   │   └── vibration_severity_checker.py # Đánh giá mức độ rung
 │   │
 │   ├── 📂 preprocessing/
-│   │   ├── eda_loader.py                # Carga y EDA inicial
-│   │   └── pipeline.py                     # Utilidades
+│   │   ├── eda_loader.py                # Nạp dữ liệu & EDA ban đầu
+│   │   └── pipeline.py                     # Tiện ích
 │   │
 │   └── 📂 visualization/
-│       ├── charts.py                    # Gráficos matplotlib
-│       ├── eda_plots.py                 # Plots exploratorios
-│       └── plots.py                    # Figuras adicionales
+│       ├── charts.py                    # Đồ thị matplotlib
+│       ├── eda_plots.py                 # Đồ thị khám phá
+│       ├── plots.py                    # Hình vẽ bổ sung
+│       └── turbine_3d.py                # Mô hình 3D tuabin + đồ thị 3D (Plotly)
 │
 ├── 📂 workflows/
-│   ├── eda.py                           # Análisis exploratorio de datos
-│   ├── preprocess.py                    # Preprocesamiento de datos
-│   ├── train_model.py                   # Entrenamiento modelo residuos
-│   ├── train_classifier.py              # Entrenamiento clasificadores
-│   ├── predict_anomalies.py             # Predicción en datos nuevos
-│   ├── generate_reports.py              # Generación de reportes
+│   ├── eda.py                           # Phân tích khám phá dữ liệu
+│   ├── preprocess.py                    # Tiền xử lý dữ liệu
+│   ├── train_model.py                   # Huấn luyện mô hình sai số
+│   ├── train_classifier.py              # Huấn luyện bộ phân loại
+│   ├── predict_anomalies.py             # Dự đoán trên dữ liệu mới
+│   ├── generate_reports.py              # Sinh báo cáo
+│   ├── visualize_3d.py                  # Xuất file HTML 3D độc lập
 │   └── __init__.py
 │
 ├── 📂 configs/
-│   └── config.py                      # Parámetros ajustables
+│   └── config.py                      # Tham số tùy chỉnh
 │
 ├── 📂 app/
-│   └── main.py                          # Interfaz Streamlit
+│   └── main.py                          # Giao diện Streamlit (tiếng Việt)
+│
+├── 📂 docs/
+│   └── 3D_MODEL.md                      # Tài liệu mô hình 3D
 │
 ├── 📂 data/
-│   ├── raw/                             # Datos originales
+│   ├── raw/                             # Dữ liệu gốc
 │   ├── processed/
-│   │   ├── imbalance/                   # Datos desbalanceo
-│   │   └── misalignment/                # Datos desalineación
-│   └── reports/                         # Reportes generados
+│   │   ├── imbalance/                   # Dữ liệu mất cân bằng
+│   │   └── misalignment/                # Dữ liệu lệch trục
+│   └── reports/                         # Báo cáo đã sinh
 │
 ├── 📂 models/
-│   └── trained/                         # Modelos entrenados
-│       ├── residuals_CSP_v3.pkl         # Modelo residuos
+│   ├── predictions/                     # Dự đoán + file HTML 3D (3d_*.html)
+│   └── trained/                         # Mô hình đã huấn luyện
+│       ├── residuals_CSP_v3.pkl         # Mô hình sai số
 │       ├── classifier_linear.pkl
 │       ├── classifier_logistic.pkl
 │       ├── classifier_gmm.pkl
 │       ├── classifier_best.pkl
 │       └── best_classifier_metadata.json
 │
-├── 📂 mlruns/                           # MLflow experiments (opcional)
-├── 📂 mlartifacts/                      # MLflow artifacts (opcional)
+├── 📂 mlruns/                           # Thí nghiệm MLflow (tùy chọn)
+├── 📂 mlartifacts/                      # Artifact MLflow (tùy chọn)
 │
 ├── 📂 .github/workflows/
-│   ├── preprocess_on_data_change.yml    # Trigger preprocesamiento
-│   └── preprocess_on_pipeline_change.yml # Trigger por cambios
+│   ├── preprocess_on_data_change.yml    # Kích hoạt tiền xử lý khi đổi dữ liệu
+│   └── preprocess_on_pipeline_change.yml # Kích hoạt khi đổi pipeline.py
 │
-├── Dockerfile                           # Docker image
-├── docker-compose.yml                   # Services (MLflow + API)
-├── requirements.txt                     # Dependencias Python
-├── .env                                 # Variables de entorno
+├── Dockerfile                           # Image Docker
+├── docker-compose.yml                   # Dịch vụ (MLflow + API)
+├── requirements.txt                     # Thư viện Python
+├── .env                                 # Biến môi trường
 ├── .gitignore
-└── README.md                            # Este archivo
+└── README.md                            # File này
 ```
 
 ---
 
-## 📦 Requisitos
+## 📦 Yêu cầu
 
-### Sistema
+### Hệ thống
 - **Python**: 3.11+
-- **Docker**: 24.0+ (opcional, para servicios)
-- **RAM**: 4GB+ (entrenamiento)
-- **CPU**: 2+ núcleos
+- **Docker**: 24.0+ (tùy chọn, cho các dịch vụ)
+- **RAM**: 4GB+ (huấn luyện)
+- **CPU**: 2+ nhân
 
-### Dependencias Python
+### Thư viện Python
 
 ```txt
 # Core ML/Data
@@ -193,10 +202,10 @@ numpy==1.24.3
 scikit-learn==1.3.2
 scipy==1.11.4
 
-# Modelos
+# Mô hình
 scikit-learn==1.3.2
 
-# Visualización
+# Trực quan hóa
 matplotlib==3.8.2
 seaborn==0.13.0
 
@@ -205,15 +214,15 @@ streamlit==1.28.1
 fastapi==0.104.1
 uvicorn==0.24.0
 
-# MLflow (Tracking)
+# MLflow (theo dõi)
 mlflow==2.9.0
 
-# Utilities
+# Tiện ích
 python-dotenv==1.0.0
 pydantic==2.4.2
 joblib==1.3.2
 
-# Desarrollo
+# Phát triển
 pytest==7.4.3
 black==23.12.0
 flake8==6.1.0
@@ -221,42 +230,44 @@ flake8==6.1.0
 
 ---
 
-## ⚙️ Instalación
+## ⚙️ Cài đặt
 
-### 1. Clonar Repositorio
+### 1. Nhân bản repo
 
 ```bash
 git clone https://github.com/tu-usuario/hydro-turb-ai-anomaly.git
 cd hydro-turb-ai-anomaly
 ```
 
-### 2. Crear Entorno Virtual
+### 2. Tạo môi trường ảo
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # Linux/macOS
-# o
+# hoặc
 .venv\Scripts\activate  # Windows
 ```
 
-### 3. Instalar Dependencias
+### 3. Cài thư viện
 
 ```bash
 pip install -r requirements.txt
+# Thêm plotly để dùng mô hình 3D:
+pip install plotly
 ```
 
-### 4. Configurar Variables de Entorno
+### 4. Cấu hình biến môi trường
 
 ```bash
 cp .env.example .env
-# Editar .env con tus valores
+# Sửa .env theo giá trị của bạn
 ```
 
-### 5. Descargar Datos (si aplica)
+### 5. Tải dữ liệu (nếu có)
 
 ```bash
-# Colocar archivos CSV en data/raw/
-# Estructura esperada:
+# Đặt file CSV vào data/raw/
+# Cấu trúc mong đợi:
 # data/
 # ├── raw/
 # │   ├── desbalanceo_archivo1.csv
@@ -267,200 +278,211 @@ cp .env.example .env
 
 ---
 
-## 🚀 Uso
+## 🚀 Sử dụng
 
-### Ejecutar como Módulo
+### Chạy dưới dạng module
 
-Todos los scripts deben ejecutarse como **módulos** desde la raíz del proyecto:
+Mọi script đều phải chạy dưới dạng **module** từ thư mục gốc dự án:
 
 ```bash
-python -m workflows.nombre_script
+python -m workflows.ten_script
 ```
 
-### 1️⃣ Análisis Exploratorio (EDA)
+### 1️⃣ Phân tích khám phá (EDA)
 
 ```bash
 python -m workflows.eda
 ```
 
-**Salida:**
-- Estadísticas descriptivas
-- Distribuciones por sensor
-- Gráficas en `data/reports/eda/`
-- Perfiles de cada archivo
+**Kết quả:**
+- Thống kê mô tả
+- Phân bố theo cảm biến
+- Đồ thị trong `data/reports/eda/`
+- Hồ sơ từng file
 
 ---
 
-### 2️⃣ Preprocesamiento
+### 2️⃣ Tiền xử lý
 
 ```bash
 python -m workflows.preprocess
 ```
 
-**Salida:**
-- `data/processed/imbalance/` - Datos desbalanceo
-- `data/processed/misalignment/` - Datos desalineación
-- Estadísticas de normalización
-- Detección de valores atípicos
+**Kết quả:**
+- `data/processed/imbalance/` - Dữ liệu mất cân bằng
+- `data/processed/misalignment/` - Dữ liệu lệch trục
+- Thống kê chuẩn hóa
+- Phát hiện giá trị ngoại lai
 
 ---
 
-### 3️⃣ Entrenar Modelo de Residuos
+### 3️⃣ Huấn luyện mô hình sai số
 
 ```bash
 python -m workflows.train_model
 ```
 
-**Parámetros (en `configs/config.py`):**
+**Tham số (trong `configs/config.py`):**
 ```python
-POLYNOMIAL_DEGREE = 3  # Grado del polinomio
-TEST_SIZE = 0.2        # Proporción test
+POLYNOMIAL_DEGREE = 3  # Bậc đa thức
+TEST_SIZE = 0.2        # Tỷ lệ test
 RANDOM_STATE = 42
 ```
 
-**Salida:**
-- `models/trained/residuals_CSP_v3.pkl` - Modelo serializado
-- Métricas de ajuste por sensor
-- Gráficas de residuos en `mlartifacts/`
-- Experimento registrado en MLflow
+**Kết quả:**
+- `models/trained/residuals_CSP_v3.pkl` - Mô hình đã lưu
+- Chỉ số khớp theo từng cảm biến
+- Đồ thị sai số trong `mlartifacts/`
+- Thí nghiệm ghi nhận trên MLflow
 
 ---
 
-### 4️⃣ Entrenar Clasificadores
+### 4️⃣ Huấn luyện bộ phân loại
 
 ```bash
 python -m workflows.train_classifier
 ```
 
-**Métodos entrenados:**
-1. **Linear** - Interpolación basada en percentiles
-2. **Logistic** - Regresión logística (sklearn)
-3. **GMM** - Gaussian Mixture Model
+**Các phương pháp được huấn luyện:**
+1. **Linear** - Nội suy dựa trên phân vị
+2. **Logistic** - Hồi quy logistic (sklearn)
+3. **GMM** - Mô hình hỗn hợp Gauss
 
-**Salida:**
-- `models/trained/classifier_*.pkl` - 3 clasificadores
-- `models/trained/classifier_best.pkl` - Mejor modelo (por test accuracy)
-- `models/trained/best_classifier_metadata.json` - Metadata del mejor
-- Comparativas en MLflow (train vs test, ROC curves, etc.)
+**Kết quả:**
+- `models/trained/classifier_*.pkl` - 3 bộ phân loại
+- `models/trained/classifier_best.pkl` - Mô hình tốt nhất (theo độ chính xác test)
+- `models/trained/best_classifier_metadata.json` - Thông tin mô hình tốt nhất
+- So sánh trên MLflow (train vs test, đường ROC, ...)
 
-**Selección del mejor:**
+**Chọn mô hình tốt nhất:**
 ```
-Si test_accuracy igual: Logistic > GMM > Linear
-Detecta overfitting automáticamente (gap > 0.15)
+Nếu độ chính xác test bằng nhau: Logistic > GMM > Linear
+Tự phát hiện overfitting (chênh lệch > 0.15)
 ```
 
 ---
 
-### 5️⃣ Hacer Predicciones
+### 5️⃣ Dự đoán
 
 ```bash
 python -m workflows.predict_anomalies
 ```
 
-**Entrada:** Archivo CSV en `data/processed/imbalance/`
+**Đầu vào:** file CSV trong `data/processed/imbalance/`
 
-**Salida:**
-- Clasificación global (Desbalanceo/Desalineación)
-- Probabilidades (P(Desbal), P(Desalin))
-- Severidad por sensor (Verde/Amarillo/Rojo)
-- Gráficas en `models/predictions/`
-- Reporte JSON con resultados
+**Kết quả:**
+- Phân loại tổng thể (Mất cân bằng/Lệch trục)
+- Xác suất (P(Mất cân bằng), P(Lệch trục))
+- Mức độ từng cảm biến (Xanh/Vàng/Đỏ)
+- Đồ thị trong `models/predictions/`
+- Báo cáo JSON chứa kết quả
 
-**Ejemplo salida:**
+**Ví dụ kết quả:**
 ```json
 {
-  "prediction": "DESBALANCEO",
+  "prediction": "MẤT CÂN BẰNG",
   "confidence": 0.98,
   "probabilities": {
     "desbalanceo": 0.98,
     "desalineacion": 0.02
   },
   "severity": {
-    "CSP": "VERDE",
-    "CSL": "AMARILLO",
-    "CTP": "VERDE",
-    "CTL": "ROJO"
+    "CSP": "verde",
+    "CSL": "amarillo",
+    "CTP": "verde",
+    "CTL": "rojo"
   }
 }
 ```
 
 ---
 
-### 6️⃣ Ejecutar Interfaz Web (Streamlit)
+### 6️⃣ Chạy giao diện web (Streamlit)
 
 ```bash
 streamlit run app/main.py
 ```
 
-**URL Local:** `http://localhost:8501`
+**Địa chỉ local:** `http://localhost:8501`
 
-**Tabs:**
-1. **Predicción Global**
-   - Clasificación y confianza
-   - Distribución de fenómenos (puntos de desbalanceo vs desalineación)
-   - Información del análisis
+**Các tab:**
+1. **Dự đoán tổng thể**
+   - Phân loại và độ tin cậy
+   - Phân bố hiện tượng (điểm mất cân bằng vs lệch trục)
+   - Thông tin phân tích
 
-2. **Gráficas por Sensor**
-   - Datos reales vs predicción (scatter plot)
-   - Ajuste polinómico (línea roja)
-   - Residuos (relleno gris)
-   - Colorbar con magnitud de residuos
+2. **Đồ thị từng cảm biến**
+   - Dữ liệu đo vs dự đoán (scatter plot)
+   - Đường cong đa thức (đường đỏ)
+   - Sai số (vùng tô xám)
+   - Thanh màu theo độ lớn sai số
 
-3. **Severidad Detallada**
-   - Tabla por sensor con valoración
-   - Resumen de estados (Verde/Amarillo/Rojo)
-   - Recomendaciones automáticas
+3. **Mức độ chi tiết**
+   - Bảng từng cảm biến kèm đánh giá
+   - Tổng hợp trạng thái (Xanh/Vàng/Đỏ)
+   - Khuyến nghị tự động
 
-**Uso:**
-1. Cargar archivo CSV desde sidebar
-2. Esperar procesamiento
-3. Ver análisis en los tabs
+4. **🌀 Tuabin 3D**
+   - Mô hình 3D tuabin Francis nằm ngang (trục, 3 gối đỡ,
+     máy phát, buồng xoắn, bánh xe 13 cánh, ống hút)
+   - Cảm biến tô màu theo mức độ rung
+   - Kéo để xoay, cuộn chuột để thu/phóng
 
-**Nuevos tabs 3D (Plotly) + modo demo:**
-4. **Tab 4 — 🌀 Tuabin 3D**: modelo 3D de turbina Francis horizontal
-   (eje, 3 cojinetes, generador, cámara espiral, rodete de 13 álabes,
-   tubo de aspiración) con sensores coloreados por severidad
-   (🟢 verde / 🟡 amarillo / 🔴 rojo). Rotar con el ratón, zoom con la rueda.
-5. **Tab 5 — 📦 Phân tích 3D**: scatter 3D KPH × sensor × amplitud
-   (color = |residuo|) + espacio 3D de sensores.
-6. Sin CSV/modelo: activar **"Dùng dữ liệu demo"** en el sidebar
-   para ver el 3D con datos sintéticos. Detalles en `docs/3D_MODEL.md`.
+5. **📦 Phân tích 3D**
+   - Scatter 3D: KPH × cảm biến × biên độ (màu = |sai số|)
+   - Không gian cảm biến 3D
 
-**Exportar HTML 3D standalone (sin Streamlit):**
+**Cách dùng:**
+1. Tải file CSV từ sidebar
+2. Chờ xử lý
+3. Xem kết quả ở các tab
+4. Chưa có CSV/model: bật **"Dùng dữ liệu demo"** ở sidebar
+   để xem ngay mô hình 3D với dữ liệu giả lập
+
+---
+
+### 7️⃣ Mô hình 3D
+
+Chi tiết đầy đủ xem `docs/3D_MODEL.md`.
+
+**Xuất file HTML 3D độc lập (không cần Streamlit):**
 ```bash
-python -m workflows.visualize_3d            # → models/predictions/3d_*.html
-python -m workflows.visualize_3d --anomaly misalignment --open
+python -m workflows.visualize_3d
+python -m workflows.visualize_3d --anomaly misalignment --points 1500 --open
+# → models/predictions/3d_turbine.html
+# → models/predictions/3d_vibration.html
+# → models/predictions/3d_sensor_space.html
 ```
 
 ---
 
 ## 🐳 Docker & MLflow
 
-### Iniciar Servicios (Dev)
+### Khởi động dịch vụ (Dev)
 
 ```bash
 docker-compose up -d
 ```
 
-**Servicios:**
-- **MLflow**: `http://localhost:5000` - Tracking de experimentos
-- **API**: `http://localhost:8000` - (Legado, no en uso actualmente)
+**Dịch vụ:**
+- **MLflow**: `http://localhost:5000` - Theo dõi thí nghiệm
+- **API**: `http://localhost:8000` - (Cũ, hiện không dùng)
 
 **Volumes:**
 ```
 ./mlruns -> /mlflow/mlruns              (Backend store)
 ./mlartifacts -> /mlflow/mlartifacts    (Artifact store)
-./ -> /app                               (Código)
-./data -> /app/data                      (Datos)
+./ -> /app                               (Mã nguồn)
+./data -> /app/data                      (Dữ liệu)
 ```
 
-### Detener Servicios
+### Dừng dịch vụ
 
 ```bash
 docker-compose down
 ```
 
-### Ver Logs
+### Xem log
 
 ```bash
 docker-compose logs -f mlflow
@@ -469,10 +491,10 @@ docker-compose logs -f api
 
 ---
 
-## 🤖 API REST (Legado)
+## 🤖 API REST (cũ)
 
-> **Nota:** La API FastAPI ya no está en uso. Toda la lógica está en Streamlit.
-> Se mantiene aquí para referencia histórica.
+> **Ghi chú:** API FastAPI hiện không còn dùng. Toàn bộ logic nằm trong Streamlit.
+> Giữ lại đây để tham khảo.
 
 ### Endpoint: POST `/predict`
 
@@ -484,7 +506,7 @@ curl -X POST "http://localhost:8000/predict" \
 **Response:**
 ```json
 {
-  "prediction": "DESBALANCEO",
+  "prediction": "MẤT CÂN BẰNG",
   "confidence": 0.95,
   "probabilities": {
     "desbalanceo": 0.95,
@@ -503,82 +525,82 @@ curl -X POST "http://localhost:8000/predict" \
     }
   },
   "severity": {
-    "CSP": "VERDE",
-    "CSL": "AMARILLO",
-    "CTP": "VERDE",
-    "CTL": "ROJO"
+    "CSP": "verde",
+    "CSL": "amarillo",
+    "CTP": "verde",
+    "CTL": "rojo"
   }
 }
 ```
 
 ---
 
-## 📊 Workflows de CI/CD
+## 📊 Quy trình CI/CD
 
-### Workflows Actuales
+### Quy trình hiện tại
 
 **`.github/workflows/`:**
 
-- `preprocess_on_data_change.yml` - Dispara preprocesamiento al cambiar datos
-- `preprocess_on_pipeline_change.yml` - Dispara al cambiar pipeline.py
+- `preprocess_on_data_change.yml` - Kích hoạt tiền xử lý khi dữ liệu đổi
+- `preprocess_on_pipeline_change.yml` - Kích hoạt khi pipeline.py đổi
 
-### Workflows Pendientes (TODO)
+### Quy trình cần làm (TODO)
 
-Los siguientes workflows necesitan completarse:
+Các workflow sau cần hoàn thiện:
 
 ```yaml
 # 1. test_on_pr.yml
-# Ejecuta pytest cuando hay PR
-# - Validar sintaxis
-# - Pruebas unitarias
+# Chạy pytest khi có PR
+# - Kiểm tra cú pháp
+# - Test đơn vị
 # - Lint (flake8, black)
 
 # 2. train_model_scheduled.yml
-# Entrenamiento automático semanal
-# - Trigger: cron (semanal)
-# - Entrenar modelo residuos
-# - Entrenar clasificadores
-# - Comparar con anterior
-# - Notificar resultados
+# Huấn luyện tự động hằng tuần
+# - Kích hoạt: cron (hằng tuần)
+# - Huấn luyện mô hình sai số
+# - Huấn luyện bộ phân loại
+# - So sánh với bản trước
+# - Thông báo kết quả
 
 # 3. deploy_streamlit.yml
-# Deploy automático a Streamlit Cloud
-# - Trigger: push a main
-# - Verificar tests
-# - Deploy a producción
-# - Verificar salud
+# Triển khai tự động lên Streamlit Cloud
+# - Kích hoạt: push lên main
+# - Kiểm tra test
+# - Triển khai production
+# - Kiểm tra tình trạng
 
 # 4. data_validation.yml
-# Validación de datos nuevos
-# - Trigger: nuevos CSVs en data/raw
-# - Validar formato
-# - Detectar anomalías
-# - Alertar si hay problemas
+# Kiểm chứng dữ liệu mới
+# - Kích hoạt: CSV mới trong data/raw
+# - Kiểm tra định dạng
+# - Phát hiện bất thường
+# - Cảnh báo khi có vấn đề
 
 # 5. model_registry.yml
-# Registro de modelos
-# - Trigger: nuevo best classifier
-# - Guardar en model registry
-# - Versionado (MLflow)
-# - Tracking de performance
+# Đăng ký mô hình
+# - Kích hoạt: có best classifier mới
+# - Lưu vào model registry
+# - Đánh phiên bản (MLflow)
+# - Theo dõi hiệu năng
 ```
 
 ---
 
-## 🌐 Deployment
+## 🌐 Triển khai
 
-### Streamlit Cloud (Producción)
+### Streamlit Cloud (Production)
 
-**URL:** [Turbina Anomaly Detector](https://hydro-turb-ai-anomaly-hpzpvsmfjrv4gdlcxyxvjg.streamlit.app/)
+**URL:** [Turbine Anomaly Detector](https://hydro-turb-ai-anomaly-hpzpvsmfjrv4gdlcxyxvjg.streamlit.app/)
 
-**Pasos para Deploying:**
+**Các bước triển khai:**
 
-1. **Conectar GitHub a Streamlit Cloud**
+1. **Kết nối GitHub với Streamlit Cloud**
    ```
-   https://share.streamlit.io/ -> "New app" -> Seleccionar repo
+   https://share.streamlit.io/ -> "New app" -> Chọn repo
    ```
 
-2. **Configurar**
+2. **Cấu hình**
    ```
    - Repository: tu-usuario/hydro-turb-ai-anomaly
    - Branch: main
@@ -586,37 +608,37 @@ Los siguientes workflows necesitan completarse:
    - Python version: 3.11
    ```
 
-3. **Environment (Secrets)**
+3. **Môi trường (Secrets)**
    ```
    # .streamlit/secrets.toml
    MLFLOW_TRACKING_URI = "http://localhost:5000"
    ```
 
-4. **Deploy**
-   - Automático con cada push a `main`
-   - Logs en Streamlit dashboard
+4. **Triển khai**
+   - Tự động mỗi khi push lên `main`
+   - Log trên dashboard Streamlit
 
 ---
 
-## 📚 Documentación Técnica
+## 📚 Tài liệu kỹ thuật
 
-### Modelo de Residuos
+### Mô hình sai số
 
-**Clase:** `DataResidualsProcessor` (`src/models/residuals_model.py`)
+**Lớp:** `DataResidualsProcessor` (`src/models/residuals_model.py`)
 
 ```python
-# Entrada: DataFrame con sensores + KPH
-# Proceso:
-# 1. Por cada sensor:
-#    - Ajuste polinomio cúbico (KPH vs amplitud)
-#    - Predicción = polinomio(KPH)
-#    - Residuo = amplitud real - predicción
-# 2. Retorna matriz de residuos (n_samples, n_sensores)
+# Đầu vào: DataFrame gồm cảm biến + KPH
+# Xử lý:
+# 1. Với mỗi cảm biến:
+#    - Khớp đa thức bậc 3 (KPH vs biên độ)
+#    - Dự đoán = đa thức(KPH)
+#    - Sai số = biên độ đo - dự đoán
+# 2. Trả về ma trận sai số (n_samples, n_sensores)
 
-# Salida: Residuos, Columnas, KPH, Datos, Predicciones
+# Đầu ra: Sai số, Cột, KPH, Dữ liệu, Dự đoán
 ```
 
-**Uso:**
+**Cách dùng:**
 ```python
 from src.models.residuals_model import DataResidualsProcessor
 
@@ -626,42 +648,42 @@ residuals, cols, kph, data, pred = model.calculate_residuals_global(df)
 
 ---
 
-### Clasificadores
+### Bộ phân loại
 
-**Clase:** `AnomalyClassifier` (`src/models/classifier.py`)
+**Lớp:** `AnomalyClassifier` (`src/models/classifier.py`)
 
-**Métodos:**
+**Phương pháp:**
 
-| Método | Parámetro | Descripción |
+| Phương pháp | Tham số | Mô tả |
 |--------|-----------|-------------|
-| Linear | N/A | Umbrales percentil (p25/p75) |
-| Logistic | C=1.0 | Regresión logística sklearn |
-| GMM | n_components=2 | Gaussian Mixture Model |
+| Linear | N/A | Ngưỡng phân vị (p25/p75) |
+| Logistic | C=1.0 | Hồi quy logistic sklearn |
+| GMM | n_components=2 | Mô hình hỗn hợp Gauss |
 
-**Probabilidades:**
+**Xác suất:**
 ```python
-# Todos retornan P(Desalineación)
-# P(Desbalanceo) = 1 - P(Desalineación)
+# Tất cả trả về P(Lệch trục)
+# P(Mất cân bằng) = 1 - P(Lệch trục)
 
 y_proba = classifier.predict_proba(X_test)  # shape: (n, 1)
 ```
 
 ---
 
-### Severidad
+### Mức độ rung
 
-**Clase:** `VibrationSeverityChecker` (`src/models/vibration_severity_checker.py`)
+**Lớp:** `VibrationSeverityChecker` (`src/models/vibration_severity_checker.py`)
 
-**Umbrales por Sensor (Francis Horizontal):**
+**Ngưỡng theo cảm biến (Francis nằm ngang):**
 
-| Sensor | Verde | Amarillo | Rojo |
+| Cảm biến | Xanh | Vàng | Đỏ |
 |--------|-------|----------|------|
 | CSP    | ≤60   | 60-100   | >100 |
 | CSL    | ≤70   | 70-110   | >110 |
 | CTP    | ≤80   | 80-120   | >120 |
 | CTL    | ≤2.5  | 2.5-5    | >5   |
 
-**Configurables en `configs/config.py`:**
+**Tùy chỉnh trong `configs/config.py`:**
 ```python
 SEVERITY_THRESHOLDS = {
     "Francis horizontal": {
@@ -674,9 +696,9 @@ SEVERITY_THRESHOLDS = {
 
 ---
 
-### Estructura de Datos
+### Cấu trúc dữ liệu
 
-**Entrada CSV (raw):**
+**CSV đầu vào (raw):**
 ```csv
 Fecha,KPH,CSP,CSL,CTP,CTL
 2024-01-15 10:30:00,100.5,65.2,72.1,85.3,2.1
@@ -684,11 +706,11 @@ Fecha,KPH,CSP,CSL,CTP,CTL
 ...
 ```
 
-**Salida Predicción:**
+**Kết quả dự đoán:**
 ```python
 {
-    "prediction": "DESBALANCEO",               # Clasificación global
-    "confidence": 0.95,                        # Confianza del mejor model
+    "prediction": "MẤT CÂN BẰNG",               # Phân loại tổng thể
+    "confidence": 0.95,                        # Độ tin cậy mô hình tốt nhất
     "probabilities": {
         "desbalanceo": 0.95,
         "desalineacion": 0.05
@@ -710,101 +732,101 @@ Fecha,KPH,CSP,CSL,CTP,CTL
         "kph": [100.5, 100.6, ...]
     },
     "severity": {
-        "CSP": "VERDE",
-        "CSL": "AMARILLO",
-        "CTP": "VERDE",
-        "CTL": "ROJO"
+        "CSP": "verde",
+        "CSL": "amarillo",
+        "CTP": "verde",
+        "CTL": "rojo"
     }
 }
 ```
 
 ---
 
-## 🔍 Comandos Útiles
+## 🔍 Lệnh hữu ích
 
-### Development
+### Phát triển
 
 ```bash
-# Linting
+# Lint
 flake8 src/ workflows/ app/
 
-# Format
+# Định dạng
 black src/ workflows/ app/
 
-# Tests (cuando estén implementados)
+# Test (khi đã viết test)
 pytest tests/ -v
 
-# Ver estructura
+# Xem cấu trúc
 tree -L 3 -I '__pycache__|*.pyc|.venv'
 ```
 
 ### MLflow
 
 ```bash
-# Abrir dashboard
+# Mở dashboard
 mlflow ui --backend-store-uri file:./mlruns
 
-# Ver experimentos
+# Xem thí nghiệm
 mlflow experiments list
 
-# Ver runs de un experimento
+# Xem run của thí nghiệm
 mlflow runs list --experiment-name "classifier_training"
 ```
 
 ### Streamlit
 
 ```bash
-# Dev local
+# Chạy local
 streamlit run app/main.py
 
-# Deploy (si está conectado)
+# Triển khai (nếu đã kết nối)
 streamlit deploy
 
-# Clear cache
+# Xóa cache
 streamlit cache clear
 ```
 
 ---
 
-## 🚨 Troubleshooting
+## 🚨 Khắc phục sự cố
 
-### Problema: "No hay datos gráficos para sensor X"
+### Lỗi: "Không có dữ liệu đồ thị cho cảm biến X"
 
-**Causa:** `sensor_data` no está siendo poblado correctamente
+**Nguyên nhân:** `sensor_data` chưa được điền đúng
 
-**Solución:**
+**Cách sửa:**
 ```python
-# Verificar que TurbinePredictor devuelve sensor_data
+# Kiểm tra TurbinePredictor có trả về sensor_data không
 result = predictor.predict(temp_path)
 assert "sensor_data" in result["metadata"]
 ```
 
-### Problema: Severidad muestra 0.00
+### Lỗi: Mức độ hiển thị 0.00
 
-**Causa:** `max_values` no está en el nivel correcto
+**Nguyên nhân:** `max_values` nằm sai cấp
 
-**Solución:**
+**Cách sửa:**
 ```python
-# max_values debe estar en result, no en metadata
-max_vals = result.get("max_values", {})  # Correcto
-# NO
-max_vals = result["metadata"].get("max_values", {})  # Incorrecto
+# max_values phải nằm ở result, không phải metadata
+max_vals = result.get("max_values", {})  # Đúng
+# KHÔNG dùng
+max_vals = result["metadata"].get("max_values", {})  # Sai
 ```
 
-### Problema: MLflow no conecta desde Docker
+### Lỗi: MLflow không kết nối từ Docker
 
-**Causa:** URL de MLflow incorrecta
+**Nguyên nhân:** URL MLflow sai
 
-**Solución:**
+**Cách sửa:**
 ```python
-# Dentro del container, usar nombre del service
+# Trong container, dùng tên service
 import os
 mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://mlflow:5000"))
 ```
 
-### Problema: Port 8000/5000 ya en uso
+### Lỗi: Cổng 8000/5000 đã dùng
 
-**Solución:**
+**Cách sửa:**
 ```bash
 # Linux/macOS
 lsof -i :8000
@@ -817,41 +839,41 @@ taskkill /PID <PID> /F
 
 ---
 
-## 📝 Próximos Pasos
+## 📝 Việc tiếp theo
 
-- [ ] Implementar workflows de CI/CD completos
-- [ ] Agregar pruebas unitarias (`tests/`)
-- [ ] Documentación de API OpenAPI (si se reactiva)
-- [ ] Dashboard adicional con histórico de predicciones
-- [ ] Alerts automáticos por correo si Rojo
-- [ ] Versionado de modelos en Production
-- [ ] Monitoreo de data drift
-
----
-
-## 👥 Contribuciones
-
-1. Fork el proyecto
-2. Crear rama feature (`git checkout -b feature/nombre`)
-3. Commit cambios (`git commit -am 'Agregar feature'`)
-4. Push a rama (`git push origin feature/nombre`)
-5. Abrir Pull Request
+- [ ] Hoàn thiện quy trình CI/CD đầy đủ
+- [ ] Thêm test đơn vị (`tests/`)
+- [ ] Tài liệu API OpenAPI (nếu bật lại API)
+- [ ] Dashboard lịch sử dự đoán
+- [ ] Cảnh báo email tự động khi Đỏ
+- [ ] Đánh phiên bản mô hình Production
+- [ ] Giám sát data drift
 
 ---
 
-## 📄 Licencia
+## 👥 Đóng góp
 
-MIT License - Ver `LICENSE` para detalles
-
----
-
-## 📧 Contacto
-
-Para preguntas o issues:
-- Abrir GitHub Issue
-- Contactar equipo de desarrollo
+1. Fork dự án
+2. Tạo nhánh feature (`git checkout -b feature/ten-tinh-nang`)
+3. Commit thay đổi (`git commit -am 'Thêm tính năng'`)
+4. Push lên nhánh (`git push origin feature/ten-tinh-nang`)
+5. Mở Pull Request
 
 ---
 
-**Última actualización:** Noviembre 2025  
-**Versión:** 1.0.0
+## 📄 Giấy phép
+
+Giấy phép MIT - Xem `LICENSE` để biết chi tiết
+
+---
+
+## 📧 Liên hệ
+
+Có câu hỏi hoặc issue:
+- Mở GitHub Issue
+- Liên hệ nhóm phát triển
+
+---
+
+**Cập nhật lần cuối:** Tháng 11/2025  
+**Phiên bản:** 1.0.0

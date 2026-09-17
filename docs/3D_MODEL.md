@@ -29,7 +29,7 @@ python -m workflows.visualize_3d --anomaly misalignment --points 1500 --open
 
 ## 3. Màu sắc & vị trí cảm biến
 
-| Màu | Mức độ (severity) | Ý nghĩa |
+| Màu | Giá trị trong code | Ý nghĩa |
 |-----|-------------------|---------|
 | 🟢 `#059669` | `verde` | Bình thường |
 | 🟡 `#F59E0B` | `amarillo` | Cảnh báo — theo dõi (có quầng mờ) |
