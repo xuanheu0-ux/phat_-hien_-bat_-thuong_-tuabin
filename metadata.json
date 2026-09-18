@@ -1,0 +1,6 @@
+{
+  "name": "Detector de Anomalías en Turbinas Hidráulicas",
+  "description": "Hệ thống phát hiện và phân loại bất thường (mất cân bằng vs lệch trục) trong tuabin thủy lực với mô phỏng 3D động học trục, thiết lập mẫu tình huống kỹ thuật thủ công và đánh giá rung động",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
